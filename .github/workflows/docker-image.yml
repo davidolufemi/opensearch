@@ -1,39 +1,48 @@
-name: Docker Image CI
+name: Build and Push Docker Image
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main  # Trigger the workflow on pushes to the main branch
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main  # Trigger on pull requests to the main branch
 
 jobs:
-
-   build-and-pushdocker-image:
+  build-and-push:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      # - name: Set up Docker Compose
-      #   run: sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-      # - name: make the script executable
-      #   run: sudo chmod +x /usr/local/bin/docker-compose  
-      # - name: Build Docker image
-      #   run:  docker-compose build
-      # - name: Show Docker images
-      #   run: docker images
+    # Step 1: Check out the code from the repository
+    - name: Checkout code
+      uses: actions/checkout@v3
 
+    # Step 2: Log in to Docker Hub
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Tag Docker image
-        run: docker tag logging davidayo97/logging:${GITHUB_SHA}
+    # Step 3: Set up Docker Buildx (for multi-platform builds)
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
 
-      - name: Show Docker images
-        run: docker images
+    # Step 4: Cache Docker layers (to speed up the build)
+    - name: Cache Docker layers
+      uses: actions/cache@v2
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-docker-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-docker-
 
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+    # Step 5: Build and push the Docker image
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v3
+      with:
+        context: .  # The directory to build from (typically the root of your repo)
+        file: ./Dockerfile  # Path to your Dockerfile (if it's in the root, you can omit this)
+        push: true  # Push the image to Docker Hub
+        tags: ${{ secrets.DOCKER_USERNAME }}/opensearch:${{ github.sha }}  # Image name and tag
 
-      - name: Push Docker image
-        run: docker push davidayo97/logging:${GITHUB_SHA}
