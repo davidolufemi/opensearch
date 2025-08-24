@@ -44,7 +44,7 @@ jobs:
         context: .  # The directory to build from (typically the root of your repo)
         file: ./Dockerfile  # Path to your Dockerfile (if it's in the root, you can omit this)
         push: true  # Push the image to Docker Hub
-        tags: ${{ secrets.DOCKER_USERNAME }}/opensearch:${{ github.sha }}
+        tags: opensearch:${{ github.sha }}
 
 
 
