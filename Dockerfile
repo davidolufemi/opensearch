@@ -1,18 +1,8 @@
-# Use lightweight Python base image
 FROM python:3.11-slim
-
-# Set work directory
 WORKDIR /app
-
-# Install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy application code
 COPY app.py .
-
-# Expose Flask port
 EXPOSE 3000
-
-# Run the app
-CMD ["python", "app.py"]
+# Access logs to stdout (-), error logs to stderr (-)
+CMD ["gunicorn", "--bind", "0.0.0.0:3000", "--access-logfile", "-", "--error-logfile", "-", "app:app"]
