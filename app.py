@@ -1,19 +1,12 @@
-import time
-import logging
-from datetime import datetime
+from flask import Flask
+import os
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)s [orders-app] %(message)s"
-)
+app = Flask(__name__)
+PORT = int(os.environ.get("PORT", 3000))
 
-def main():
-    counter = 1
-    while True:
-        logging.info(f"Processing order #{counter} at {datetime.utcnow().isoformat()}Z")
-        counter += 1
-        time.sleep(60)  # sleep for 1 minute
+@app.route("/")
+def hello():
+    return "Hello World from Flask!"
 
 if __name__ == "__main__":
-    main()
+    app.run(host="0.0.0.0", port=PORT)
