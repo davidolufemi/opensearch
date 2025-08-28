@@ -5,7 +5,7 @@ import sys
 from datetime import datetime
 
 app = Flask(__name__)
-PORT = int(os.environ.get("PORT", 3000))
+PORT = int(os.environ.get("PORT", 80))
 
 # ---- Logging setup (stdout, timestamps, levels) ----
 root = logging.getLogger()
