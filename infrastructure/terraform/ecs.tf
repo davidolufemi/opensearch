@@ -40,7 +40,7 @@ module "ecs" {
 
           portMappings = [{
             name          = "web"
-            containerPort = 3000
+            containerPort = 80
             protocol      = "tcp"
           }]
 
@@ -67,19 +67,18 @@ module "ecs" {
         service = {
           target_group_arn = module.alb.target_groups["ex-instance"].arn
           container_name   = "ecs-app"  # must match container name above
-          container_port   = 3000       # must match containerPort above & TG port
+          container_port   = 80       # must match containerPort above & TG port
         }
       }
 
       # Put tasks in PRIVATE subnets (recommended)
       subnet_ids = module.vpc.public_subnets
 
-      # Let ALB SG talk to the service on 3000
       security_group_ingress_rules = {
         alb_3000 = {
-          description                  = "Allow ALB service on 3000"
-          from_port                    = 3000
-          to_port                      = 3000
+          description                  = "Allow ALB service on 80"
+          from_port                    = 80
+          to_port                      = 80
           ip_protocol                  = "tcp"
           referenced_security_group_id = module.alb.security_group_id
         }
